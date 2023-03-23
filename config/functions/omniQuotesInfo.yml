@@ -1,0 +1,27 @@
+---
+function:
+  name: omni-quotes-poc-${self:provider.stage}
+  description:
+  handler: src/omniQuotesInfo.handler
+  memorySize: 1024
+  timeout: 90
+  layers:
+    - { Ref: OmniQuotesInfoPocLayerLambdaLayer }
+  package:
+    patterns:
+     - '!**/*'
+     - 'src/omniQuotesInfo.js'  
+     - "src/shared/**"
+  events:
+    - http: 
+        path: /quotes/info 
+        method: GET
+        cors: true
+    - schedule: cron(0 10 ? * 4 *)
+  environment:
+    DB_HOST: ${ssm:/omni-dw/${self:provider.stage}/db/host/url~true}
+    DB_PORT: ${ssm:/omni-dw/${self:provider.stage}/db/port}
+    DB_USERNAME: ${ssm:/omni-dw/${self:provider.stage}/db/user~true}
+    DB_PASSWORD: ${ssm:/omni-dw/${self:provider.stage}/db/password~true}
+    DB_DATABASE: ${ssm:/omni-dw/worldtrak/${self:provider.stage}/db/name} #"wtstage"
+    S3_BUCKET_NAME: ${ssm:/${self:service}/${self:provider.stage}/s3_bucket/name}

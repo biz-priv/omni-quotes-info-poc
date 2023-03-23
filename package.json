@@ -1,0 +1,21 @@
+{
+  "name": "omni-quotes-info-poc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1341.0",
+    "fs": "^0.0.1-security",
+    "json2csv": "^6.0.0-alpha.2",
+    "pg": "^8.10.0"
+  },
+  "devDependencies": {
+    "serverless": "2.72.3",
+    "serverless-offline": "^3.20.2"
+  }
+}
