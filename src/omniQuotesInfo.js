@@ -7,43 +7,31 @@ const fs = require('fs');
 const s3 = new AWS.S3();
 
 
+const Host = process.env.DB_HOST
+const Port = process.env.DB_PORT
+const User = process.env.DB_USERNAME
+const Password = process.env.DB_PASSWORD
+const Database = process.env.DB_DATABASE
+
 module.exports.handler = async (event, context) => {
     try {
         console.info("Event: \n", JSON.stringify(event));
-         
+
         if (event.httpMethod === 'GET') {
             const body = event.body;
             const fromDate = body.fromDate;
             const toDate = body.toDate;
             const ApiQuery = await fetchApiQuery(fromDate, toDate)
-            console.log("ApiQuery", ApiQuery)
             const jsonData = await fetchDataFromRedshiftForApi(ApiQuery);
-            console.log("jsonData", jsonData)
-            const timestamp = new Date()
-            const filename = "QuoteData-" + timestamp.toISOString().substring(5, 10) + '-' + timestamp.toISOString().substring(0, 4) + ".csv"
-            console.log("filename", filename)
-            const json2Csv = await convertToCSV(jsonData, filename)
-            console.log("json2Csv", json2Csv)
-            const uploadFile = await uploadFileToS3(filename)
-            console.log("uploadFile", uploadFile)
+            await outputData(jsonData)
+
 
         } else if (event.source === 'aws.events' && event['detail-type'] === 'Scheduled Event') {
             const ScheduleQuery = await fetchScheduleQuery()
-            console.log("ScheduleQuery", ScheduleQuery)
             const jsonData = await fetchDataFromRedshiftForSchedule(ScheduleQuery);
-            console.log("jsonData", jsonData)
-            const timestamp = new Date()
-            const filename = "QuoteData-" + timestamp.toISOString().substring(5, 10) + '-' + timestamp.toISOString().substring(0, 4) + ".csv"
-            console.log("filename", filename)
-            const json2Csv = await convertToCSV(jsonData, filename)
-            console.log("json2Csv", json2Csv)
-            const uploadFile = await uploadFileToS3(filename)
-            console.log("uploadFile", uploadFile)
-
+            await outputData(jsonData)
+            
         }
-
-
-
     } catch (err) {
         console.log("handler:error", err);
         throw err;
@@ -52,14 +40,23 @@ module.exports.handler = async (event, context) => {
 };
 
 
+async function outputData(jsonData) {
+    const timestamp = new Date()
+    const filename = "QuoteData-" + timestamp.toISOString().substring(5, 10) + '-' + timestamp.toISOString().substring(0, 4) + ".csv"
+    console.log("filename", filename)
+    const json2Csv = await convertToCSV(jsonData, filename)
+    const uploadFile = await uploadFileToS3(filename)
+    return uploadFile;
+}
+
 
 async function fetchDataFromRedshiftForApi(ApiQuery) {
     const client = new Client({
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT,
-        user: process.env.DB_USERNAME,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_DATABASE
+        host: Host,
+        port: Port,
+        user: User,
+        password: Password,
+        database: Database
     });
     try {
         const query = ApiQuery
@@ -78,11 +75,11 @@ async function fetchDataFromRedshiftForApi(ApiQuery) {
 
 async function fetchDataFromRedshiftForSchedule(ScheduleQuery) {
     const client = new Client({
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT,
-        user: process.env.DB_USERNAME,
-        password: process.env.DB_PASSWORD,
-        database: "wtstage"
+        host: Host,
+        port: Port,
+        user: User,
+        password: Password,
+        database: Database
     });
     try {
         const query = ScheduleQuery
