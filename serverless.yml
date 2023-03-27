@@ -21,10 +21,7 @@ provider:
             - "arn:aws:s3:::omni-quotes-info-poc/*"
         - Effect: Allow
           Action:
-            - "redshift:GetClusterCredentials"
-            - "redshift:DescribeClusters"
-            - "redshift:DescribeClusterDbRevisions"
-            - "redshift:DescribeClusterDbRevisions"
+            - "redshift:*"
           Resource: "*"
   vpc:
     securityGroupIds:
