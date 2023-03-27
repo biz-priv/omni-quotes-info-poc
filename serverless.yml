@@ -19,6 +19,13 @@ provider:
           Resource: 
             - "arn:aws:s3:::omni-quotes-info-poc"
             - "arn:aws:s3:::omni-quotes-info-poc/*"
+        - Effect: Allow
+          Action:
+            - "redshift:GetClusterCredentials"
+            - "redshift:DescribeClusters"
+            - "redshift:DescribeClusterDbRevisions"
+            - "redshift:DescribeClusterDbRevisions"
+          Resource: "*"
   vpc:
     securityGroupIds:
       - ${ssm:/omni-dw/${self:provider.stage}/lambda/sgId}
