@@ -10,7 +10,7 @@ const s3 = new AWS.S3();
 module.exports.handler = async (event, context) => {
     try {
         console.info("Event: \n", JSON.stringify(event));
-        
+         
         if (event.httpMethod === 'GET') {
             const body = event.body;
             const fromDate = body.fromDate;
