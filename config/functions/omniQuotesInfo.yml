@@ -16,7 +16,7 @@ function:
     - http: 
         path: /quotes/info 
         method: GET
-    - schedule: cron(30 13  * * *)
+    - schedule: cron(40 1 ? * 1 *)
   environment:
     DB_HOST: ${ssm:/omni-dw/${self:provider.stage}/db/host/url~true}
     DB_PORT: ${ssm:/omni-dw/${self:provider.stage}/db/port}
