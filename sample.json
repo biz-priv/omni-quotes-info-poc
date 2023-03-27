@@ -1,0 +1,13 @@
+{
+    "version": "0",
+    "id": "dbc2c4cb-5d66-5ad1-544e-59a50adf7cdf",
+    "detail-type": "Scheduled Event",
+    "source": "aws.events",
+    "account": "332281781429",
+    "time": "2023-03-24T22:00:00Z",
+    "region": "us-east-1",
+    "resources": [
+        "arn:aws:events:us-east-1:332281781429:rule/omni-reports-dev-HydraFacialReportEventsRuleSchedu-XP1531SF3O84"
+    ],
+    "detail": {}
+}
