@@ -59,7 +59,7 @@ async function fetchDataFromRedshiftForApi(ApiQuery) {
         port: process.env.DB_PORT,
         user: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
-        database: "wtstage"
+        database: process.env.DB_DATABASE
     });
     try {
         const query = ApiQuery
