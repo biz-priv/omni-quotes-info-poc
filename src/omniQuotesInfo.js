@@ -12,7 +12,7 @@ module.exports.handler = async (event, context) => {
         console.info("Event: \n", JSON.stringify(event));
         let omniInfoQuery;
         if (event.httpMethod === 'GET') {
-            const body = event.body;
+            const body = event.queryStringParameters;
             const fromDate = body.fromDate;
             const toDate = body.toDate;
             const apiCondition = ` between '${fromDate}' and '${toDate}'`
