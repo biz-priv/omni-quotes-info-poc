@@ -1,7 +1,4 @@
-async function fetchApiQuery(fromDate,toDate){
-
-
-    const omniQuotesInfoApiQuery= `select 
+    const omniQuotesInfoQuery= `select 
     PK_OrderNo,FK_ServiceLevelId,FK_ControlCustomerNo,cntrl.custname,a.billno,billto.custname,billto.custcity,billto.fk_custstate,
     billto.custzip,
     shipper.shipno as shipper_nbr,
@@ -71,9 +68,7 @@ async function fetchApiQuery(fromDate,toDate){
     left outer join dbo.tbl_instructions instr
     on a.pk_orderno = instr.fk_orderno
     where shipquote = 'Q'
-    and cast(orderdate as date) between '${fromDate}' and '${toDate}'`
-    return omniQuotesInfoApiQuery;
+    and cast(orderdate as date) `
+    
 
-}
-
-module.exports = { fetchApiQuery };
+module.exports = { omniQuotesInfoQuery };

@@ -1,36 +1,30 @@
 const AWS = require("aws-sdk");
 const { Client } = require('pg');
-const { fetchApiQuery } = require("./shared/omniQuotesApiQuery");
-const { fetchScheduleQuery } = require("./shared/omniQuotesScheduleQuery")
+const { omniQuotesInfoQuery } = require("./shared/omniQuotesInfoQuery");
 const json2csv = require('json2csv').parse;
 const fs = require('fs');
 const s3 = new AWS.S3();
 
 
-const Host = process.env.DB_HOST
-const Port = process.env.DB_PORT
-const User = process.env.DB_USERNAME
-const Password = process.env.DB_PASSWORD
-const Database = process.env.DB_DATABASE
 
 module.exports.handler = async (event, context) => {
     try {
         console.info("Event: \n", JSON.stringify(event));
-
+        let omniInfoQuery;
         if (event.httpMethod === 'GET') {
             const body = event.body;
             const fromDate = body.fromDate;
             const toDate = body.toDate;
-            const ApiQuery = await fetchApiQuery(fromDate, toDate)
-            const jsonData = await fetchDataFromRedshiftForApi(ApiQuery);
+            const apiCondition = ` between '${fromDate}' and '${toDate}'`
+            omniInfoQuery = omniQuotesInfoQuery.concat(apiCondition)
+            const jsonData = await fetchDataFromRedshift(omniInfoQuery);
             await outputData(jsonData)
-
-
-        } else if (event.source === 'aws.events' && event['detail-type'] === 'Scheduled Event') {
-            const ScheduleQuery = await fetchScheduleQuery()
-            const jsonData = await fetchDataFromRedshiftForSchedule(ScheduleQuery);
+        } 
+        else if (event.source === 'aws.events' && event['detail-type'] === 'Scheduled Event') {
+            const scheduleCondition = ` >= DATEADD(day, -30, GETDATE())`
+            omniInfoQuery = omniQuotesInfoQuery.concat(scheduleCondition)
+            const jsonData = await fetchDataFromRedshift(omniInfoQuery);
             await outputData(jsonData)
-            
         }
     } catch (err) {
         console.log("handler:error", err);
@@ -50,16 +44,16 @@ async function outputData(jsonData) {
 }
 
 
-async function fetchDataFromRedshiftForApi(ApiQuery) {
+async function fetchDataFromRedshift(omniInfoQuery) {
     const client = new Client({
-        host: Host,
-        port: Port,
-        user: User,
-        password: Password,
-        database: Database
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT,
+        user: process.env.DB_USERNAME,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_DATABASE
     });
     try {
-        const query = ApiQuery
+        const query = omniInfoQuery
         await client.connect();
         const res = await client.query(query);
         console.log(res.rows[1]);
@@ -73,33 +67,12 @@ async function fetchDataFromRedshiftForApi(ApiQuery) {
     }
 }
 
-async function fetchDataFromRedshiftForSchedule(ScheduleQuery) {
-    const client = new Client({
-        host: Host,
-        port: Port,
-        user: User,
-        password: Password,
-        database: Database
-    });
-    try {
-        const query = ScheduleQuery
-        await client.connect();
-        const res = await client.query(query);
-        console.log(res.rows[1]);
-        const quotesDataArray = res.rows
-        await client.end();
-        return quotesDataArray;
-    }
-    catch (error) {
-        console.log("fetchDataFromRedshift:", error)
-        throw error
-    }
-}
+
 
 async function convertToCSV(jsonData, filename) {
     try {
         const csv = json2csv(jsonData);
-        await fs.promises.writeFile("/tmp/"+filename, csv);
+        await fs.promises.writeFile("/tmp/" + filename, csv);
         console.log(`JSON data successfully converted to CSV and saved at ${filename}`);
         return csv;
     } catch (error) {
@@ -113,7 +86,7 @@ async function uploadFileToS3(filename) {
         console.log("uploadFileToS3")
         const bucketName = process.env.S3_BUCKET_NAME
 
-        const fileContent = fs.readFileSync("/tmp/"+filename)
+        const fileContent = fs.readFileSync("/tmp/" + filename)
         console.log("fileContent==> ", fileContent)
         const params = {
             Bucket: bucketName,
