@@ -6,7 +6,7 @@ provider:
   stage: ${opt:stage, 'dev'}
   versionFunctions: false
   tags: ${self:custom.tags}
-  stackTags: ${self:custom.tags}
+  # stackTags: ${self:custom.tags}
   iam:
     role:
       name: ${self:service}-${self:provider.stage}-role
@@ -36,7 +36,7 @@ provider:
 custom:
   region: ${opt:region, 'us-east-1'}
   stage: ${opt:stage, 'dev'}
-  tags:
+  stackTags:
     Application: omni-quotes-info-poc
     CreatedBy: Bizcloudexperts
     Environment: ${self:custom.stage}
