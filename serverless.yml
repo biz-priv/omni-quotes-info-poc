@@ -6,6 +6,10 @@ provider:
   stage: ${opt:stage, 'dev'}
   versionFunctions: false
   tags: ${self:custom.tags}
+  stackTags:
+    Application: Omni-quotes-info-poc
+    CreatedBy: Bizcloudexperts
+    Environment: ${self:custom.stage}  
   # stackTags: ${self:custom.tags}
   iam:
     role:
