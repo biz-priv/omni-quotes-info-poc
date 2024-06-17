@@ -5,8 +5,8 @@ provider:
   region: ${opt:region, 'us-east-1'}
   stage: ${opt:stage, 'dev'}
   versionFunctions: false
-  tags: ${self:custom.tags}
-  stackTags:
+  # tags: ${self:custom.tags}
+  tags:
     Application: Omni-quotes-info-poc
     CreatedBy: Bizcloudexperts
     Environment: ${self:custom.stage}  
