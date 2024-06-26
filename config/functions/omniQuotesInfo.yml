@@ -5,6 +5,8 @@ function:
   handler: src/omniQuotesInfo.handler
   memorySize: 1024
   timeout: 90
+  tags:
+    Name: poc
   layers:
     - { Ref: OmniQuotesInfoPocLayerLambdaLayer }
   package:
